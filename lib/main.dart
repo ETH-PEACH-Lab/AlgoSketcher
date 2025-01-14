@@ -1,17 +1,23 @@
 import 'package:flutter/material.dart';
 import 'screens/drawing_screen.dart';
+import 'screens/result_screen.dart';
 
 void main() {
-  runApp(DrawingApp());
+  runApp(MyApp());
 }
 
-class DrawingApp extends StatelessWidget {
+class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'AlgoSketcher',
       theme: ThemeData(primarySwatch: Colors.blue),
-      home: DrawingScreen(),
+      // 注册路由
+      initialRoute: '/',
+      routes: {
+        '/': (context) => DrawingScreen(),
+        '/result': (context) => ResultScreen(),
+      },
     );
   }
 }

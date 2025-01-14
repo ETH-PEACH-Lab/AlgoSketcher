@@ -6,23 +6,21 @@ class DrawingScreen extends StatefulWidget {
 }
 
 class _DrawingScreenState extends State<DrawingScreen> {
-  List<Offset> points = []; // 保存用户绘制的点
+  List<Offset> points = []; // 保存用户绘图点
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('AlgoSketcher - Windows'),
-      ),
+      appBar: AppBar(title: Text('Drawing Canvas')),
       body: GestureDetector(
         onPanUpdate: (details) {
           setState(() {
-            points.add(details.localPosition); // 添加绘图点
+            points.add(details.localPosition);
           });
         },
         onPanEnd: (details) {
           setState(() {
-            points.add(Offset.zero); // 结束路径
+            points.add(Offset.zero); // 分隔路径
           });
         },
         child: CustomPaint(
@@ -32,7 +30,7 @@ class _DrawingScreenState extends State<DrawingScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // 跳转到识别结果界面
+          // 跳转到结果界面，并传递 points 参数
           Navigator.pushNamed(context, '/result', arguments: points);
         },
         child: Icon(Icons.check),

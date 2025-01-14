@@ -1,28 +1,63 @@
-import 'dart:math';
 import 'package:flutter/material.dart';
 
-class ShapeRecognizer {
-  static String recognizeShape(List<Offset> points) {
-    if (points.isEmpty) return 'Unknown';
-    
-    final center = _calculateCentroid(points);
-    final radii = points.map((p) => (p - center).distance).toList();
-    final avgRadius = radii.reduce((a, b) => a + b) / radii.length;
+class DrawingScreen extends StatefulWidget {
+  @override
+  _DrawingScreenState createState() => _DrawingScreenState();
+}
 
-    final variance = radii
-        .map((r) => pow(r - avgRadius, 2))
-        .reduce((a, b) => a + b) /
-        radii.length;
+class _DrawingScreenState extends State<DrawingScreen> {
+  List<Offset> points = []; // 保存用户绘图点
 
-    if (variance < 5.0) {
-      return 'Circle';
-    } else {
-      return 'Unknown Shape';
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('Drawing Canvas')),
+      body: GestureDetector(
+        onPanUpdate: (details) {
+          setState(() {
+            points.add(details.localPosition);
+          });
+        },
+        onPanEnd: (details) {
+          setState(() {
+            points.add(Offset.zero); // 分隔路径
+          });
+        },
+        child: CustomPaint(
+          painter: DrawingPainter(points),
+          size: Size.infinite,
+        ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          // 跳转到结果界面，并传递 points 参数
+          Navigator.pushNamed(context, '/result', arguments: points);
+        },
+        child: Icon(Icons.check),
+      ),
+    );
+  }
+}
+
+class DrawingPainter extends CustomPainter {
+  final List<Offset> points;
+
+  DrawingPainter(this.points);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    Paint paint = Paint()
+      ..color = Colors.black
+      ..strokeWidth = 2.0
+      ..strokeCap = StrokeCap.round;
+
+    for (int i = 0; i < points.length - 1; i++) {
+      if (points[i] != Offset.zero && points[i + 1] != Offset.zero) {
+        canvas.drawLine(points[i], points[i + 1], paint);
+      }
     }
   }
 
-  static Offset _calculateCentroid(List<Offset> points) {
-    final sum = points.reduce((a, b) => Offset(a.dx + b.dx, a.dy + b.dy));
-    return Offset(sum.dx / points.length, sum.dy / points.length);
-  }
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
